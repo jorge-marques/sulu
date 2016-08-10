@@ -41312,6 +41312,7 @@ define('__component__$column-navigation@husky',[],function() {
                 ghost: 'column-navigation.ghost',
                 shadow: 'column-navigation.shadow',
                 unpublished: 'public.unpublished',
+                publishedWithDraft: 'public.published-with-draft',
                 internalLink: 'public.internal-link',
                 externalLink: 'public.external-link'
             },
@@ -41956,7 +41957,7 @@ define('__component__$column-navigation@husky',[],function() {
          * @param data - the item's data
          */
         renderLeftInfo: function($item, data) {
-            var $container = this.sandbox.dom.find('.' + constants.iconsLeftClass, $item);
+            var $container = this.sandbox.dom.find('.' + constants.iconsLeftClass, $item), tooltip;
             this.sandbox.dom.append($container, '<span class="fa-check pull-left marked-icon"></span>');
             if (!!this.options.showStatus) {
                 // link
@@ -41978,17 +41979,21 @@ define('__component__$column-navigation@husky',[],function() {
                         this.sandbox.dom.append($container,
                             '<span class="fa-shadow-node col-icon"  title="' + this.sandbox.translate(this.options.tooltipTranslations.shadow) + '"></span>');
                     }
-                } else if (!data[this.options.publishedStateName]) {
+                }
+                // unpublished
+                if (!data[this.options.publishedStateName]) {
+                    tooltip = this.sandbox.translate(this.options.tooltipTranslations.unpublished);
                     if (!!data[this.options.publishedName]) {
+                        tooltip = this.sandbox.translate(this.options.tooltipTranslations.publishedWithDraft);
                         this.sandbox.dom.append(
                             $container,
-                            '<span class="published-icon col-icon" title="' + this.sandbox.translate(this.options.tooltipTranslations.unpublished) + '"></span>'
+                            '<span class="published-icon col-icon" title="' + tooltip + '"></span>'
                         );
                     }
 
                     this.sandbox.dom.append(
                         $container,
-                        '<span class="draft-icon col-icon" title="' + this.sandbox.translate(this.options.tooltipTranslations.unpublished) + '"></span>'
+                        '<span class="draft-icon col-icon" title="' + tooltip + '"></span>'
                     );
                 }
             }
@@ -42021,9 +42026,13 @@ define('__component__$column-navigation@husky',[],function() {
             var $container = this.sandbox.dom.find('.' + constants.iconsRightClass, $item),
                 actionIcon = getActionIcon.call(this, data);
 
-            if (this.options.showActionIcon === true && actionIcon && !disabled) {
+            // show action icon only for non-ghost pages
+            if ((!data[this.options.typeName] || data[this.options.typeName].name !== 'ghost') &&
+                this.options.showActionIcon === true && actionIcon && !disabled
+            ) {
                 this.sandbox.dom.append($container, '<span class="' + actionIcon + ' action col-icon"></span>');
             }
+
             if (!!data[this.options.hasSubName] && (!disabled || !this.options.disabledChildren)) {
                 this.sandbox.dom.append($container, '<span class="fa-chevron-right arrow inactive col-icon"></span>');
             }
